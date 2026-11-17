@@ -33,7 +33,30 @@ class Product:
         return f'{self.name}, {self.price} руб. Остаток: {self.quantity} шт.'
 
     def __add__(self, other):
+        if type(self) is not type(other):
+            raise TypeError(
+                "Складывать можно только товары одного класса"
+            )
         return self.price * self.quantity + other.price * other.quantity
+
+
+class Smartphone(Product):
+    def __init__(self, name, description, price, quantity,
+                 efficiency, model, memory, color):
+        super().__init__(name, description, price, quantity)
+        self.efficiency = efficiency
+        self.model = model
+        self.memory = memory
+        self.color = color
+
+
+class LawnGrass(Product):
+    def __init__(self, name, description, price, quantity,
+                 country, germination_period, color):
+        super().__init__(name, description, price, quantity)
+        self.country = country
+        self.germination_period = germination_period
+        self.color = color
 
 
 class Category:
@@ -52,6 +75,11 @@ class Category:
         Category.product_count += len(products)
 
     def add_product(self, product):
+        if not isinstance(product, Product):
+            raise TypeError(
+                "В категорию можно добавлять только объекты Product "
+                "или его наследников"
+            )
         self.__products.append(product)
         Category.product_count += 1
 
@@ -63,20 +91,29 @@ class Category:
     def products(self):
         result = ''
         for product in self.__products:
-            result += f'{product.name}, {product.price} руб. Остаток: {product.quantity} шт.\n'
+            result += (
+                f'{product.name}, {product.price} руб. '
+                f'Остаток: {product.quantity} шт.\n'
+            )
         return result
 
 
 if __name__ == "__main__":  # pragma: no cover
-
-    product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5)
+    product1 = Product(
+        "Samsung Galaxy S23 Ultra",
+        "256GB, Серый цвет, 200MP камера",
+        180000.0,
+        5,
+    )
     product2 = Product("Iphone 15", "512GB, Gray space", 210000.0, 8)
     product3 = Product("Xiaomi Redmi Note 11", "1024GB, Синий", 31000.0, 14)
 
-    category1 = Category("Смартфоны",
-                         "Смартфоны, как средство не только коммуникации, но и получения дополнительных функций для "
-                         "удобства жизни",
-                         [product1, product2, product3])
+    category1 = Category(
+        "Смартфоны",
+        "Смартфоны, как средство не только коммуникации, но и получения "
+        "дополнительных функций для удобства жизни",
+        [product1, product2, product3],
+    )
 
     print(Category.category_count)
     print(Category.product_count)
@@ -98,3 +135,37 @@ if __name__ == "__main__":  # pragma: no cover
 
     print(category1)
     print(product1)
+
+    smartphone = Smartphone(
+        "Samsung Galaxy S23 Ultra",
+        "256GB",
+        180000.0,
+        5,
+        efficiency=98,
+        model="S23 Ultra",
+        memory=256,
+        color="Black",
+    )
+    grass = LawnGrass(
+        "Газонная трава",
+        "Элитная",
+        1500.0,
+        10,
+        country="Россия",
+        germination_period="7 дней",
+        color="Зелёный",
+    )
+
+    print(smartphone)
+    print(grass)
+
+    try:
+        smartphone + grass
+    except TypeError as error:
+        print("Ошибка:", error)
+
+    category2 = Category("Смартфоны", "Описание", [smartphone])
+    try:
+        category2.add_product("строка")
+    except TypeError as error:
+        print("Ошибка:", error)
