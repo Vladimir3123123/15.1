@@ -4,22 +4,20 @@
 
 ## Функциональность
 
-- Класс `Product` — базовый товар (name, description, price, quantity).
-- Класс `Smartphone(Product)` — смартфон с атрибутами:
-  `efficiency`, `model`, `memory`, `color`.
-- Класс `LawnGrass(Product)` — газонная трава с атрибутами:
-  `country`, `germination_period`, `color`.
-- Класс `Category` — категория товаров со счётчиками
-  `category_count` и `product_count`.
-- Сложение товаров (`__add__`) разрешено только для объектов
-  одного и того же класса — иначе `TypeError` (проверка через `type()`).
-- В категорию (`add_product`) можно добавлять только объекты
-  `Product` и его наследников — иначе `TypeError`
-  (проверка через `isinstance()`).
+- Абстрактный класс `BaseProduct` (ABC) — общая логика для всех продуктов.
+- Миксин `ReprMixin` — печатает в консоль информацию о созданном объекте
+  (класс и параметры).
+- Класс `Product(ReprMixin, BaseProduct)` — базовый товар.
+- Класс `Smartphone(Product)` — смартфон
+  (`efficiency`, `model`, `memory`, `color`).
+- Класс `LawnGrass(Product)` — газонная трава
+  (`country`, `germination_period`, `color`).
+- Класс `Category` — категория со счётчиками `category_count`
+  и `product_count`.
+- Сложение (`__add__`) только для объектов одного класса — иначе `TypeError`.
+- В `add_product` можно добавлять только `Product` и наследников.
 
 ## Тестирование
-
-Запуск тестов с отчётом о покрытии:
 
 ```bash
 pytest --cov=main --cov-report=term-missing
