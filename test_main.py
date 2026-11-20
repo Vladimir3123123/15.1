@@ -33,6 +33,23 @@ def test_repr_mixin_used_by_product():
     assert issubclass(Product, ReprMixin)
 
 
+def test_repr_prints_on_create(capsys):
+    Product("Тест", "описание", 100.0, 3)
+    captured = capsys.readouterr()
+    assert "Product(" in captured.out
+    assert "name='Тест'" in captured.out
+
+
+def test_repr_smartphone(capsys):
+    Smartphone(
+        "Iphone", "512GB", 210000.0, 8,
+        efficiency=95, model="15 Pro", memory=512, color="Gray",
+    )
+    captured = capsys.readouterr()
+    assert "Smartphone(" in captured.out
+    assert "efficiency=95" in captured.out
+
+
 def test_repr_string_format():
     p = Product("A", "d", 100.0, 1)
     text = repr(p)
@@ -43,12 +60,31 @@ def test_repr_string_format():
 
 # ---------- Product ----------
 
-def test_product_init(capsys):
+def test_product_init():
     p = Product("Iphone 15", "512GB, Gray space", 210000.0, 8)
     assert p.name == "Iphone 15"
     assert p.description == "512GB, Gray space"
     assert p.price == 210000.0
     assert p.quantity == 8
+
+
+def test_product_zero_quantity_raises():
+    with pytest.raises(ValueError) as error:
+        Product("Нулевой", "d", 100.0, 0)
+    assert (
+        "Товар с нулевым количеством не может быть добавлен"
+        in str(error.value)
+    )
+
+
+def test_smartphone_zero_quantity_raises():
+    with pytest.raises(ValueError):
+        Smartphone("A", "d", 100.0, 0, 1, "m", 64, "black")
+
+
+def test_lawn_grass_zero_quantity_raises():
+    with pytest.raises(ValueError):
+        LawnGrass("A", "d", 100.0, 0, "RU", "7d", "green")
 
 
 def test_new_product():
@@ -180,3 +216,23 @@ def test_products_getter():
     p1 = Product("A", "d", 100.0, 5)
     c = Category("Смартфоны", "Описание", [p1])
     assert c.products == "A, 100.0 руб. Остаток: 5 шт.\n"
+
+
+# ---------- average_price ----------
+
+def test_average_price_two_products():
+    p1 = Product("A", "d", 100.0, 1)
+    p2 = Product("B", "d", 300.0, 1)
+    c = Category("Смартфоны", "d", [p1, p2])
+    assert c.average_price() == 200.0
+
+
+def test_average_price_one_product():
+    p1 = Product("A", "d", 100.0, 5)
+    c = Category("Смартфоны", "d", [p1])
+    assert c.average_price() == 100.0
+
+
+def test_average_price_empty_category():
+    c = Category("Пустая", "d", [])
+    assert c.average_price() == 0

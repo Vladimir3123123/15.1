@@ -49,6 +49,10 @@ class ReprMixin:
 
 class Product(ReprMixin, BaseProduct):
     def __init__(self, name, description, price, quantity):
+        if quantity == 0:
+            raise ValueError(
+                "Товар с нулевым количеством не может быть добавлен"
+            )
         super().__init__(name, description, price, quantity)
 
     @classmethod
@@ -104,6 +108,13 @@ class Category:
         self.__products.append(product)
         Category.product_count += 1
 
+    def average_price(self):
+        try:
+            total = sum(product.price for product in self.__products)
+            return total / len(self.__products)
+        except ZeroDivisionError:
+            return 0
+
     def __str__(self):
         total = sum(product.quantity for product in self.__products)
         return f'{self.name}, количество продуктов: {total} шт.'
@@ -144,6 +155,7 @@ if __name__ == "__main__":  # pragma: no cover
     print(product3)
 
     print(category1)
+    print("Средняя цена:", category1.average_price())
 
     smartphone = Smartphone(
         "Samsung Galaxy S23 Ultra",
@@ -173,8 +185,10 @@ if __name__ == "__main__":  # pragma: no cover
     except TypeError as error:
         print("Ошибка:", error)
 
-    category2 = Category("Смартфоны", "Описание", [smartphone])
     try:
-        category2.add_product("строка")
-    except TypeError as error:
+        Product("Нулевой", "d", 100.0, 0)
+    except ValueError as error:
         print("Ошибка:", error)
+
+    empty_category = Category("Пустая", "без товаров", [])
+    print("Средняя цена пустой категории:", empty_category.average_price())
